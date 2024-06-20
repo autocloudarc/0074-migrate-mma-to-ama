@@ -13,7 +13,6 @@ terraform {
 }
 
 provider "azurerm" {
-  skip_provider_registration = true
   use_oidc = true
   subscription_id = var.identitySubscriptionId
   features {
@@ -24,7 +23,6 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  skip_provider_registration = true
   alias = "connectivity"
   use_oidc = true
   subscription_id = var.connectivitySubscriptionId
@@ -36,7 +34,6 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  skip_provider_registration = true
   alias = "management"
   use_oidc = true
   subscription_id = var.managementSubscriptionId
@@ -48,7 +45,6 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  skip_provider_registration = true
   alias = "iac"
   use_oidc = true
   subscription_id = var.iacSubscriptionId
