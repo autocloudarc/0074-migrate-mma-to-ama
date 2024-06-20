@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~>3.97.1"
+      version = "~>3.108.0"
       configuration_aliases = [
         azurerm.connectivity,
         azurerm.management,
@@ -13,6 +13,7 @@ terraform {
 }
 
 provider "azurerm" {
+  skip_provider_registration = true
   use_oidc = true
   subscription_id = var.identitySubscriptionId
   features {
@@ -23,6 +24,7 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
+  skip_provider_registration = true
   alias = "connectivity"
   use_oidc = true
   subscription_id = var.connectivitySubscriptionId
@@ -34,6 +36,7 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
+  skip_provider_registration = true
   alias = "management"
   use_oidc = true
   subscription_id = var.managementSubscriptionId
@@ -45,6 +48,7 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
+  skip_provider_registration = true
   alias = "iac"
   use_oidc = true
   subscription_id = var.iacSubscriptionId
@@ -59,7 +63,6 @@ module "idy" {
   source = "./modules/plt/idy"
 
   providers = {
-    skip_provider_registration = true
     azurerm = azurerm
     azurerm.connectivity = azurerm.connectivity
     azurerm.management = azurerm.management
