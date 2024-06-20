@@ -59,6 +59,7 @@ module "idy" {
   source = "./modules/plt/idy"
 
   providers = {
+    skip_provider_registration = true
     azurerm = azurerm
     azurerm.connectivity = azurerm.connectivity
     azurerm.management = azurerm.management
@@ -73,5 +74,5 @@ module "idy" {
   identitySubscriptionId = var.identitySubscriptionId
   managementSubscriptionId = var.managementSubscriptionId
   connectivitySubscriptionId = var.connectivitySubscriptionId
-  umi_name = var.uami_name
+  umi_name = var.UAMI_NAME
 }
