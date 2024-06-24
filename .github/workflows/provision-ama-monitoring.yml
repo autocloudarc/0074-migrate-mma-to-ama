@@ -107,7 +107,7 @@ jobs:
 
       # Get drive space on each VM to ensure there is enough space (at least 10GB) to install the Azure Monitoring Agent
       - name: 'get_drive_space'
-        if: ${{ env.skipDriveSpace == 'false' }}
+        if: ${{ env.skipDriveSpace == 'false' && env.operation == 'plan' || env.operation == 'apply'}}
         uses: azure/powershell@v1
         with:
           inlineScript: |
@@ -118,7 +118,7 @@ jobs:
 
       # Download the DCR generator script, comment out the Set-DeployOutputOnAzure function, and deploy the generated templates to create the DCRs
       - name: 'download_execute_dcr_generator_script'
-        if: ${{ env.skipDCRDownload == 'false' }}
+        if: ${{ env.skipDCRDownload == 'false' && env.operation == 'plan' || env.operation == 'apply'}}
         uses: azure/powershell@v1
         with:
           inlineScript: |
