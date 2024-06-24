@@ -247,6 +247,7 @@ jobs:
         if: ${{ env.operation == 'rollback' }}
         id: rollback
         run: terraform destroy -auto-approve
+        timeout-minutes: 30
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
