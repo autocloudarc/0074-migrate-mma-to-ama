@@ -23,7 +23,7 @@ env:
   MGTSUBSCRIPTION: ${{ secrets.MGTSUBSCRIPTION }}
   CONSUBSCRIPTION: ${{ secrets.CONSUBSCRIPTION }} # Subscription for the connection monitor
   IACSUBSCRIPTION: ${{ secrets.IACSUBSCRIPTION }}
-  UAMI_NAME: ${{ secrets.UAMI_NAME }}
+  UAMI_NAME: ${{ secrets.UAMI_NAME }} # umi-ama-mig-001
   uamiResourceGroup: rgp-iac
   mgtResourceGroup: orgid-mgmt
   mgtLogAnalyticsWorkspace: orgid-la
@@ -59,7 +59,7 @@ env:
   dceName: dce # task-item: randomize name?
   dcrAssociation: dcrVms
   pubNetAccess: 'Enabled'
-  operation: apply # Allowable values: [plan, apply, rollback
+  operation: rollback # Allowable values: [plan, apply, rollback]
 
 # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
 defaults:
