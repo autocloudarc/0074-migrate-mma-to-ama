@@ -52,6 +52,7 @@ env:
   dcrOutputPath: az-scripts/WorkspaceConfigToDCRMigrationTool.ps1
   dcrExportPath: dcr-export
   dcrNamePrefix: dcr # For DCR migration tool generated templates
+  dcrResourceType: 'Microsoft.Insights/dataCollectionRules'
   policy-asm-dcr: enable-ama-dcr
   policy-asm-dcr-ext: enable-ama-dcr-ext
   TARGET_MG_ID: ${{ secrets.TARGET_MG_ID }}
@@ -191,6 +192,18 @@ jobs:
         if: ${{ env.operation == 'plan' || env.operation == 'apply' || env.operation == 'rollback' }}
         id: format
         run: terraform fmt -recursive
+
+      # Get deployed DCRs list
+      - name: 'get_deployed_dcrs'
+        uses: azure/powershell@v2
+        with:
+          inlineScript: |
+            Select-AzSubscription -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }}
+            try { $deployedDcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType {{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name }
+            catch { Write-Host "Failed to get deployed DCRs" }
+            $deployedDcrList
+          azPSVersion: 'latest'
+      # task-item: Determine how to inject variables into *.tf file for DCR name list
 
       # Deploy
       - name: 'terraform_plan'

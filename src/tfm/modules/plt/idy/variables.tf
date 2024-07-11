@@ -140,11 +140,10 @@ variable "connectivitySubscriptionId" {
   type    = string
 }
 
-variable "dcr_type" {
+variable "dcr_prefix" {
   type        = map(string)
   description = "DCR rule types and name"
   default = {
     dcr = "dcr"
-    dcr-ext  = "dcr-extensions"
   }
 }
