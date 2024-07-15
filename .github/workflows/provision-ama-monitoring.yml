@@ -42,9 +42,10 @@ env:
   bicepVer: latest
   tfWorkingdir: src/tfm
   skipUAMI: false # Set to true to skip UAMI creation, false to create UAMI if necessary
-  skipDriveSpace: false # Set to true to skip drive space check, false to check drive space
+  skipDriveSpace: true # Set to true to skip drive space check, false to check drive space
   skipMMAStatus: false # Set to true to skip MMA status check, false to check MMA status
   skipDCRDownload: false # Set to true to skip DCR download, false to download DCR
+  skipDCRExecute: false # Set to true to skip the DCR execution, false to execute the downloaded or staged DCR Script
   skipRemediate: false # Set to true to skip remediation, false to remediate
   skipVmExtension: false # Set to true to skip VM extension check, false to check VM extension
   removeMMA: false # Set to true to remove MMA extension, false to keep MMA extension
@@ -108,7 +109,7 @@ jobs:
       # Get drive space on each VM to ensure there is enough space (at least 10GB) to install the Azure Monitoring Agent
       - name: 'get_drive_space'
         if: ${{ env.skipDriveSpace == 'false' && env.operation == 'plan' || env.operation == 'apply'}}
-        uses: azure/powershell@v1
+        uses: azure/powershell@v2
         with:
           inlineScript: |
             chmod +x az-scripts/Get-DriveSpace.ps1
@@ -116,16 +117,24 @@ jobs:
             az-scripts/Get-DriveSpace.ps1
           azPSVersion: 'latest'
 
-      # Download the DCR generator script, comment out the Set-DeployOutputOnAzure function, and deploy the generated templates to create the DCRs
-      - name: 'download_execute_dcr_generator_script'
+      # Download and prepare DCR generator script for non-interactive execution
+      - name: 'download_dcr_generator_script'
         if: ${{ env.skipDCRDownload == 'false' && env.operation == 'plan' || env.operation == 'apply'}}
-        uses: azure/powershell@v1
+        uses: azure/powershell@v2
         with:
           inlineScript: |
             try { Invoke-WebRequest -Uri ${{ env.dcrUrl }} -OutFile ${{ env.dcrOutputPath }} -Verbose }
             catch { Write-Host "Failed to download DCR generator script" }
             (Get-Content -Path ${{ env.dcrOutputPath }}) -replace '^Set-DeployOutputOnAzure', '# Set-DeployOutputOnAzure' | Set-Content -Path ${{ env.dcrOutputPath }}
             chmod +x az-scripts/Get-EndpointConnectionResult.ps1
+          azPSVersion: 'latest'
+
+      # Execute the DCR generator script; First comment out the Set-DeployOutputOnAzure function, and deploy the generated templates to create the DCRs
+      - name: 'execute_dcr_generator_script'
+        if: ${{ env.skipDCRExecute == 'false' && env.operation == 'plan' || env.operation == 'apply'}}
+        uses: azure/powershell@v2
+        with:
+          inlineScript: |
             az-scripts/WorkspaceConfigToDCRMigrationTool.ps1 -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }} -ResourceGroupName ${{ env.mgtResourceGroup }} -WorkspaceName ${{ env.mgtLogAnalyticsWorkspace }} -DCRName ${{ env.dcrNamePrefix }} -OutputFolder ${{ env.dcrExportPath }} -Verbose 
             $outputFiles = (Get-ChildItem -Path ${{ env.dcrExportPath }}).FullName
             $templateFiles = $outputFiles | Where-Object { $_ -like "*template.json" }
@@ -213,7 +222,7 @@ jobs:
 
         # ETL for DCR, Log Analytics and VM mapping and association
       - name: 'associate_vms_with_dcr'
-        uses: azure/powershell@v1
+        uses: azure/powershell@v2
         with:
           inlineScript: |
             chmod +x az-scripts/Set-DcrVmAssociation.ps1
@@ -234,7 +243,7 @@ jobs:
       # Get VM extension information to determine if the AMA agent is installed, in which case the MMA extension can be removed if desired
       - name: 'get_vm_extension_status'
         if: ${{ env.skipVmExtension == 'false' }}
-        uses: azure/powershell@v1
+        uses: azure/powershell@v2
         with:
           inlineScript: |
             chmod +x az-scripts/Get-VmExtension.ps1
