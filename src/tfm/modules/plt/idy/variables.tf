@@ -111,8 +111,8 @@ variable "mgt_law" {
   type        = map(string)
   description = "management log analytics workspace settings from landing zone"
   default = {
-    name = "orgid-la"
-    rgp  = "orgid-mgmt"
+    name = "log-management"
+    rgp  = "rg-management"
   }
 }
 
@@ -121,8 +121,8 @@ variable "hub_vnt" {
   type        = map(string)
   description = "hub virtual network settings from landing zone"
   default = {
-    name = "orgid-hub-centralus"
-    rgp  = "orgid-connectivity-centralus"
+    name = "vnet-hub"
+    rgp  = "rg-connectivity"
   }
 }
 
@@ -140,11 +140,10 @@ variable "connectivitySubscriptionId" {
   type    = string
 }
 
-variable "dcr_type" {
+variable "dcr_prefix" {
   type        = map(string)
   description = "DCR rule types and name"
   default = {
     dcr = "dcr"
-    dcr-ext  = "dcr-extensions"
   }
 }

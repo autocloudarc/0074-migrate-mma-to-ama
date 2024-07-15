@@ -25,8 +25,8 @@ env:
   IACSUBSCRIPTION: ${{ secrets.IACSUBSCRIPTION }}
   UAMI_NAME: ${{ secrets.UAMI_NAME }} # umi-ama-mig-001
   uamiResourceGroup: rgp-iac
-  mgtResourceGroup: orgid-mgmt
-  mgtLogAnalyticsWorkspace: orgid-la
+  mgtResourceGroup: rg-management
+  mgtLogAnalyticsWorkspace: log-management
   LAW_ID: ${{ secrets.LAW_ID }}
   rgpName: rgp-idy
   rgpLocation: centralus
@@ -53,6 +53,7 @@ env:
   dcrOutputPath: az-scripts/WorkspaceConfigToDCRMigrationTool.ps1
   dcrExportPath: dcr-export
   dcrNamePrefix: dcr # For DCR migration tool generated templates
+  dcrResourceType: 'Microsoft.Insights/dataCollectionRules'
   policy-asm-dcr: enable-ama-dcr
   policy-asm-dcr-ext: enable-ama-dcr-ext
   TARGET_MG_ID: ${{ secrets.TARGET_MG_ID }}
@@ -108,7 +109,7 @@ jobs:
 
       # Get drive space on each VM to ensure there is enough space (at least 10GB) to install the Azure Monitoring Agent
       - name: 'get_drive_space'
-        if: ${{ env.skipDriveSpace == 'false' && env.operation == 'plan' || env.operation == 'apply'}}
+        if: ${{ env.skipDriveSpace == 'false' }}
         uses: azure/powershell@v2
         with:
           inlineScript: |
@@ -117,9 +118,9 @@ jobs:
             az-scripts/Get-DriveSpace.ps1
           azPSVersion: 'latest'
 
-      # Download and prepare DCR generator script for non-interactive execution
-      - name: 'download_dcr_generator_script'
-        if: ${{ env.skipDCRDownload == 'false' && env.operation == 'plan' || env.operation == 'apply'}}
+      # Download the DCR generator script, comment out the Set-DeployOutputOnAzure function, and deploy the generated templates to create the DCRs
+      - name: 'download_execute_dcr_generator_script'
+        if: ${{ env.skipDCRDownload == 'false' }}
         uses: azure/powershell@v2
         with:
           inlineScript: |
@@ -137,6 +138,8 @@ jobs:
           inlineScript: |
             az-scripts/WorkspaceConfigToDCRMigrationTool.ps1 -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }} -ResourceGroupName ${{ env.mgtResourceGroup }} -WorkspaceName ${{ env.mgtLogAnalyticsWorkspace }} -DCRName ${{ env.dcrNamePrefix }} -OutputFolder ${{ env.dcrExportPath }} -Verbose 
             $outputFiles = (Get-ChildItem -Path ${{ env.dcrExportPath }}).FullName
+            $outputFiles
+            $outputFiles | ForEach-Object { Get-Content -Path $_ }
             $templateFiles = $outputFiles | Where-Object { $_ -like "*template.json" }
             foreach ($templateFile in $templateFiles) 
             {
@@ -198,6 +201,18 @@ jobs:
         if: ${{ env.operation == 'plan' || env.operation == 'apply' || env.operation == 'rollback' }}
         id: format
         run: terraform fmt -recursive
+
+      # Get deployed DCRs list
+      - name: 'get_deployed_dcrs'
+        uses: azure/powershell@v2
+        with:
+          inlineScript: |
+            Select-AzSubscription -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }}
+            try { $deployedDcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType {{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name }
+            catch { Write-Host "Failed to get deployed DCRs" }
+            $deployedDcrList
+          azPSVersion: 'latest'
+      # task-item: Determine how to inject variables into *.tf file for DCR name list
 
       # Deploy
       - name: 'terraform_plan'
