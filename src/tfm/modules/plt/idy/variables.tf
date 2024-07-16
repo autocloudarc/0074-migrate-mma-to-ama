@@ -72,7 +72,6 @@ variable "ama_initiative_assignment" {
     policy_set_def_id = "/providers/Microsoft.Authorization/policySetDefinitions/924bfe3a-762f-40e7-86dd-5c8b95eb09e6"
     policy_set_hybrid_vm_def_id = "/providers/Microsoft.Authorization/policySetDefinitions/2b00397d-c309-49c4-aa5a-f0b2c5bc6321"
     policy_set_hybrid_vm_def_display_name = "Enable Azure Monitor for Hybrid VMs with AMA"
-  
     effect = "DeployIfNotExists"
     dcrResourceId = "/subscriptions/019181ad-6356-46c6-b584-444846096085/resourceGroups/rgp-idy/providers/Microsoft.Insights/dataCollectionRules/dcr"
     assignment_id_dcr = "/providers/microsoft.management/managementgroups/org-id-platform/providers/microsoft.authorization/policyassignments/enable-az-monitor-ama-dcr"

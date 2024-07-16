@@ -210,7 +210,7 @@ jobs:
             Select-AzSubscription -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }}
             try { $deployedDcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType {{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name }
             catch { Write-Host "Failed to get deployed DCRs" }
-            $deployedDcrList
+            finally { $deployedDcrList }
           azPSVersion: 'latest'
       # task-item: Determine how to inject variables into *.tf file for DCR name list
 
