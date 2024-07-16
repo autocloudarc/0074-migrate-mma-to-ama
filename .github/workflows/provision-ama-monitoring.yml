@@ -155,7 +155,11 @@ jobs:
             az-scripts/Get-EndpointConnectionResult.ps1
           azPSVersion: 'latest'
 
-                # Get deployed DCRs list
+      - name: install_jq
+        id: install_jq
+        run: sudo apt-get install jq
+      
+      # Get deployed DCRs list
       - name: 'get_deployed_dcrs'
         id: get_deployed_dcrs
         if: ${{ env.skipDCRExecute == 'false'}}
