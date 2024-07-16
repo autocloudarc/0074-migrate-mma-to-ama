@@ -111,6 +111,13 @@ jobs:
             az monitor data-collection endpoint create --data-collection-endpoint-name ${{ env.dceName }} --public-network-access ${{ env.pubNetAccess }} --resource-group ${{ env.mgtResourceGroup }}
           azcliversion: ${{ env.azCliVer }}
 
+      # Update PowerShell Az Modules
+      - name: 'update_ps_modules'
+        uses: azure/powershell@v2
+        with:
+          inlineScript: | 
+            Update-PSResource -Name Az -Verbose
+          azPSVersion: 'latest'
       # Get drive space on each VM to ensure there is enough space (at least 10GB) to install the Azure Monitoring Agent
       - name: 'get_drive_space'
         if: ${{ env.skipDriveSpace == 'false' }}
@@ -181,10 +188,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: prd
     needs: prepare-dcr
+    # dcr_instance: ${{ needs.prepare-dcr.outputs.dcr_resource }}
     strategy:
-      # max-parallel: 1 # We need to set this to serial to avoid contention for multiple parallel jobs (by default) competing for the writing changes to the same terraform state file
+      max-parallel: 1 # We need to set this to serial to avoid contention for multiple parallel jobs (by default) competing for the writing changes to the same terraform state file
       matrix:
-        # dcr_instance: ${{ needs.prepare-dcr.outputs.dcr_resource }}
         dcr_instance: [dcr-windows, dcr-linux] # For now, this must be done manually be reviewing the output of the prepare-dcr job, get_deployed_dcrs step and using the output of the $singleLineDcrListWithBrakets variable here
     steps:
       # Checkout the repository to the GitHub Actions runner
