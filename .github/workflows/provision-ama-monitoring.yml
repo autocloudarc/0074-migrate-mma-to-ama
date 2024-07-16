@@ -171,6 +171,7 @@ jobs:
             $dcrList
             Write-Host "---"
             Write-Host "Deployed DCR JSON list:"
+            $jsonDcrList
             Write-Output "dcr_resource=$jsonDcrList" >> $GITHUB_ENV  # Set the output variable
           azPSVersion: 'latest'
 
@@ -182,7 +183,7 @@ jobs:
     strategy:
       matrix:
         # dcr_instance: ${{ needs.prepare-dcr.outputs.dcr_resource }}
-        dcr_instance: ["dcr-windows","dcr-linux"]
+        dcr_instance: [dcr-windows, dcr-linux]
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
