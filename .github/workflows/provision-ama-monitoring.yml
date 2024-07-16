@@ -165,7 +165,8 @@ jobs:
             try { $dcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType {{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name }
             catch { Write-Host "Failed to get deployed DCRs" }
             finally { $dcrList }
-            Write-Host "::set-output name=dcrList::$dcrList"
+            # Write-Host "::set-output name=dcrList::$dcrList"
+            Write-Host "{dcrList}={dcrList}" >> $GITHUB_OUTPUT
           azPSVersion: 'latest'
 
   provision-deprovision:
