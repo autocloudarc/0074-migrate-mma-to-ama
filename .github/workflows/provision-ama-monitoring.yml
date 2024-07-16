@@ -162,7 +162,7 @@ jobs:
         with:
           inlineScript: |
             Select-AzSubscription -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }}
-            $dcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType {{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name 
+            $dcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType ${{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name 
             Write-Host $dcrList
             Write-Host "dcrName=$dcrList" >> $GITHUB_OUTPUT
           azPSVersion: 'latest'
