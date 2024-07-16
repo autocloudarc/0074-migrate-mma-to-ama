@@ -49,6 +49,7 @@ env:
   skipRemediate: false # Set to true to skip remediation, false to remediate
   skipVmExtension: false # Set to true to skip VM extension check, false to check VM extension
   skipAssociateVms: true # Set to true to skip VM association, false to associate VMs with DCR
+  skipUploadDownload: true # Set to true to skip upload/download, false to upload/download
   removeMMA: false # Set to true to remove MMA extension, false to keep MMA extension
   dcrUrl: 'https://raw.githubusercontent.com/microsoft/AzureMonitorCommunity/master/Azure%20Services/Azure%20Monitor/Agents/Migration%20Tools/DCR%20Config%20Generator/WorkspaceConfigToDCRMigrationTool.ps1'
   dcrOutputPath: az-scripts/WorkspaceConfigToDCRMigrationTool.ps1
@@ -154,7 +155,7 @@ jobs:
             az-scripts/Get-EndpointConnectionResult.ps1
           azPSVersion: 'latest'
 
-      # Get deployed DCRs list
+                # Get deployed DCRs list
       - name: 'get_deployed_dcrs'
         id: get_deployed_dcrs
         if: ${{ env.skipDCRExecute == 'false'}}
@@ -163,7 +164,15 @@ jobs:
           inlineScript: |
             Select-AzSubscription -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }}
             $dcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType ${{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name 
-            Write-Host "dcrName=$dcrList" >> $GITHUB_OUTPUT
+            $dcrList | Export-Csv -Path az-scripts/input/dcrList.csv -NoTypeInformation
+            $jsonDcrList = $dcrList | ConvertTo-Json
+            $jsonDcrList | Out-File -FilePath az-scripts/input/jsonDcrList.json
+            Write-Host "Deployed DCR Custom Objects:"
+            $dcrList
+            Write-Host "---"
+            Write-Host "Deployed DCR JSON list:"
+            $jsonDcrList
+            Write-Output "dcrName=$jsonDcrList" >> $GITHUB_ENV  # Set the output variable
           azPSVersion: 'latest'
 
   provision-deprovision:
@@ -219,6 +228,16 @@ jobs:
         if: ${{ env.operation == 'plan' || env.operation == 'apply' || env.operation == 'rollback' }}
         id: format
         run: terraform fmt -recursive
+
+      # Get deployed DCRs list
+      - name: 'show_dcr_list'
+        if: ${{ env.skipUploadDownload == 'false'}}
+        uses: azure/powershell@v2
+        with:
+          inlineScript: |
+            $importedDcrList = Import-Csv -Path az-scripts/input/dcrList.csv
+            $importedDcrList
+          azPSVersion: 'latest'
 
       # Deploy
       - name: 'terraform_plan'
