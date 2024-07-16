@@ -171,7 +171,7 @@ jobs:
             $dcrList
             Write-Host "---"
             Write-Host "Deployed DCR JSON list:"
-            $jsonDcrList
+            $jsonDcrList = $jsonDcrList | jq -r tostring
             Write-Output "dcr_resource=$jsonDcrList" >> $GITHUB_ENV  # Set the output variable
           azPSVersion: 'latest'
 
