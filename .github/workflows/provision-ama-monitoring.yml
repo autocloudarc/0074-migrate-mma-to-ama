@@ -178,11 +178,11 @@ jobs:
   provision-deprovision:
     name: 'provision-deprovision'
     runs-on: ubuntu-latest
+    environment: prd
+    needs: prepare-dcr
     strategy:
       matrix:
         dcr_instance: ${{ needs.prepare-dcr.outputs.dcr_resource }}
-    environment: prd
-    needs: prepare-dcr
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
