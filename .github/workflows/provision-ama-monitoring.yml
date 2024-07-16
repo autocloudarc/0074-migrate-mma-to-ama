@@ -169,7 +169,7 @@ jobs:
             $jsonDcrList | Out-File -FilePath az-scripts/input/jsonDcrList.json
             Write-Host "Deployed DCR Custom Objects:"
             $singleLineDcrList = $dcrList -join ', '
-            $singleLineDcrListWithBrackets = "[" + $singleLineDcrList + "]"
+            $singleLineDcrListWithBrackets = '[' + $singleLineDcrList + ']'
             Write-Host "Deployed DCR JSON list:"
             $singleLineDcrListWithBrackets
             Write-Output "dcr_resource=$singleLineDcrListWithBrackets" >> $GITHUB_ENV  # Set the output variable
