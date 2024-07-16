@@ -166,7 +166,7 @@ jobs:
             catch { Write-Host "Failed to get deployed DCRs" }
             finally { $dcrList }
             # Write-Host "::set-output name=dcrList::$dcrList"
-            Write-Host "{dcrList}={dcrList}" >> $GITHUB_OUTPUT
+            Write-Host "{dcrList}={$dcrList}" >> $GITHUB_OUTPUT
           azPSVersion: 'latest'
 
   provision-deprovision:
