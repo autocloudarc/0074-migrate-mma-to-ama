@@ -184,7 +184,7 @@ jobs:
     strategy:
       matrix:
         # dcr_instance: ${{ needs.prepare-dcr.outputs.dcr_resource }}
-        dcr_instance: [dcr-windows, dcr-linux]
+        dcr_instance: [dcr-windows, dcr-linux] # For now, this must be done manually be reviewing the output of the prepare-dcr job, get_deployed_dcrs step and using the output of the $singleLineDcrListWithBrakets variable here
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
