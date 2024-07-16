@@ -135,7 +135,7 @@ jobs:
 
       # Execute the DCR generator script; First comment out the Set-DeployOutputOnAzure function, and deploy the generated templates to create the DCRs
       - name: 'execute_dcr_generator_script'
-        if: ${{ env.skipDCRExecute == 'false' && env.operation == 'plan' || env.operation == 'apply'}}
+        if: ${{ env.skipDCRExecute == 'false' }}
         uses: azure/powershell@v2
         with:
           inlineScript: |
@@ -157,6 +157,7 @@ jobs:
       # Get deployed DCRs list
       - name: 'get_deployed_dcrs'
         id: get_deployed_dcrs
+        if: ${{ env.skipDCRExecute == 'false'}}
         uses: azure/powershell@v2
         with:
           inlineScript: |
