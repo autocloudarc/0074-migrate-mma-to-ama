@@ -176,38 +176,12 @@ jobs:
             }
             az-scripts/Get-EndpointConnectionResult.ps1
           azPSVersion: 'latest'
-      
-      # Get deployed DCRs list
-      - name: 'get_deployed_dcrs'
-        id: get_deployed_dcrs
-        if: ${{ env.skipDCRExecute == 'false'}}
-        uses: azure/powershell@v2
-        with:
-          inlineScript: |
-            Select-AzSubscription -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }}
-            $dcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType ${{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name 
-            $dcrList | Export-Csv -Path az-scripts/input/dcrList.csv -NoTypeInformation
-            $jsonDcrList = $dcrList | ConvertTo-Json
-            $jsonDcrList | Out-File -FilePath az-scripts/input/jsonDcrList.json
-            Write-Host "Deployed DCR Custom Objects:"
-            $singleLineDcrList = $dcrList -join ', '
-            $singleLineDcrListWithBrackets = "[" + $singleLineDcrList + "]"
-            Write-Host "Deployed DCR JSON list:"
-            $singleLineDcrListWithBrackets
-            Write-Output "dcr_resource=$singleLineDcrListWithBrackets" >> $GITHUB_ENV  # Set the output variable
-            echo $GITHUB_ENV
-          azPSVersion: 'latest'
 
   provision-deprovision:
     name: 'provision-deprovision'
     runs-on: ubuntu-latest
     environment: prd
     needs: prepare-dcr
-    # dcr_instance: ${{ needs.prepare-dcr.outputs.dcr_resource }}
-    strategy:
-      max-parallel: 1 # We need to set this to serial to avoid contention for multiple parallel jobs (by default) competing for the writing changes to the same terraform state file
-      matrix:
-        dcr_instance: [dcr-windows, dcr-linux] # For now, this must be done manually be reviewing the output of the prepare-dcr job, get_deployed_dcrs step and using the output of the $singleLineDcrListWithBrakets variable here
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
@@ -255,13 +229,16 @@ jobs:
         run: terraform fmt -recursive
 
       # Get deployed DCRs list
-      - name: 'show_dcr_list'
-        if: ${{ env.skipUploadDownload == 'false'}}
+      - name: 'get_deployed_dcrs'
+        id: get_deployed_dcrs
         uses: azure/powershell@v2
         with:
           inlineScript: |
-            $importedDcrList = Import-Csv -Path az-scripts/input/dcrList.csv
-            $importedDcrList
+            Select-AzSubscription -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }}
+            $dcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType ${{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name 
+            $dcrList | Export-Csv -Path az-scripts/input/dcrList.csv -NoTypeInformation -PassThru
+            $jsonDcrList = $dcrList | ConvertTo-Json -PassThru
+            $jsonDcrList | Out-File -FilePath az-scripts/input/jsonDcrList.json -PassThru
           azPSVersion: 'latest'
 
       # Deploy
