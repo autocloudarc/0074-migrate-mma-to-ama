@@ -50,6 +50,11 @@ variable "umi_name" {
   description = "prefix for user managed identity"
 }
 
+variable "dcr_instance" {
+  type = string
+  description = "DCR name"
+}
+
 variable "umi_pol_name" {
   type        = string
   description = "user managed identity for assigning initiative to targeted management group scope"

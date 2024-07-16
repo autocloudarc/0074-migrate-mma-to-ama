@@ -31,12 +31,12 @@ data "azurerm_user_assigned_identity" "umid" {
 
 data "azurerm_monitor_data_collection_rule" "dcr" {
   provider = azurerm.management
-  name                = var.dcr_prefix.dcr
+  name                = var.dcr_instance
   resource_group_name = var.mgt_law.rgp
 }
 
 resource "azurerm_management_group_policy_assignment" "ama_initiative_assignment_dcr" {
-  name                 = var.ama_initiative_assignment.name_dcr
+  name                 = data.azurerm_monitor_data_collection_rule.dcr.name
   policy_definition_id = var.ama_initiative_assignment.policy_set_def_id
   management_group_id  = data.azurerm_management_group.tgt.id
   location = var.primary_location

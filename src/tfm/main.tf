@@ -74,4 +74,5 @@ module "idy" {
   managementSubscriptionId = var.managementSubscriptionId
   connectivitySubscriptionId = var.connectivitySubscriptionId
   umi_name = var.UAMI_NAME
+  dcr_instnance = var.dcrInstance
 }
