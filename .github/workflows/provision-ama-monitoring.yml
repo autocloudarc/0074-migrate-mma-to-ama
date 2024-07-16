@@ -63,6 +63,7 @@ env:
   dceName: dce # task-item: randomize name?
   dcrAssociation: dcrVms
   pubNetAccess: 'Enabled'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: true
   operation: rollback # Allowable values: [plan, apply, rollback]
 
 # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
