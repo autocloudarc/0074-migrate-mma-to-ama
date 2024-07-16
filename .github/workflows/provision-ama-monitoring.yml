@@ -162,11 +162,8 @@ jobs:
         with:
           inlineScript: |
             Select-AzSubscription -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }}
-            try { $dcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType {{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name }
-            catch { Write-Host "Failed to get deployed DCRs" }
-            finally { $dcrList }
-            # Write-Host "::set-output name=dcrList::$dcrList"
-            Write-Host "{dcrList}={$dcrList}" >> $GITHUB_OUTPUT
+            $dcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType {{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name 
+            echo "dcrName=$dcrList" >> $GITHUB_OUTPUT
           azPSVersion: 'latest'
 
   provision-deprovision:
@@ -174,7 +171,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dcr_instance: ${{ fromJson(needs.prepare-dcr.outputs.dcrList) }}
+        dcr_instance: ${{ fromJson(needs.prepare-dcr.outputs.dcrName ) }}
     environment: prd
     needs: prepare-dcr
     steps:
