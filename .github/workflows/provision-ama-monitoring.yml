@@ -236,9 +236,12 @@ jobs:
           inlineScript: |
             Select-AzSubscription -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }}
             $dcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType ${{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name 
-            $dcrList | Export-Csv -Path az-scripts/input/dcrList.csv -NoTypeInformation -PassThru
-            $jsonDcrList = $dcrList | ConvertTo-Json -PassThru
-            $jsonDcrList | Out-File -FilePath az-scripts/input/jsonDcrList.json -PassThru
+            $dcrList | Export-Csv -Path az-scripts/input/dcrList.csv -NoTypeInformation
+            Write-Host "`$dcrList: $dcrList"
+            Import-Csv -Path az-scripts/input/dcrList.csv
+            $jsonDcrList = $dcrList | ConvertTo-Json
+            $jsonDcrList | Out-File -FilePath az-scripts/input/jsonDcrList.json
+            Write-Host "`$jsonDcrList: $jsonDcrList"
           azPSVersion: 'latest'
 
       # Deploy
