@@ -46,7 +46,7 @@ variable "UAMI_NAME" {
   description = "prefix for user managed identity"
 }
 
-variable "dcr_nstance" {
+variable "dcr_instance" {
   type = string
   description = "DCR name"
 }
