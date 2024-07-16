@@ -76,7 +76,7 @@ jobs:
     name: 'prepare-dcr'
     runs-on: ubuntu-latest
     outputs:
-      dcrName: ${{ steps.get_deployed_dcrs.outputs.dcrList }}
+      dcr_resource: ${{ steps.get_deployed_dcrs.outputs.dcrList }}
     environment: tst
     steps:
       # Checkout the repository to the GitHub Actions runner
@@ -172,7 +172,7 @@ jobs:
             Write-Host "---"
             Write-Host "Deployed DCR JSON list:"
             $jsonDcrList
-            Write-Output "dcrName=$jsonDcrList" >> $GITHUB_ENV  # Set the output variable
+            Write-Output "dcr_resource=$jsonDcrList" >> $GITHUB_ENV  # Set the output variable
           azPSVersion: 'latest'
 
   provision-deprovision:
@@ -180,7 +180,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dcr_instance: ${{ fromJson(needs.prepare-dcr.outputs.dcrName ) }}
+        dcr_instance: ${{ needs.prepare-dcr.outputs.dcr_resource }}
     environment: prd
     needs: prepare-dcr
     steps:
