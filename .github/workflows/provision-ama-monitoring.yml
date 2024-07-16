@@ -154,10 +154,6 @@ jobs:
             }
             az-scripts/Get-EndpointConnectionResult.ps1
           azPSVersion: 'latest'
-
-      - name: install_jq
-        id: install_jq
-        run: sudo apt-get install jq
       
       # Get deployed DCRs list
       - name: 'get_deployed_dcrs'
@@ -175,7 +171,6 @@ jobs:
             $dcrList
             Write-Host "---"
             Write-Host "Deployed DCR JSON list:"
-            $jsonDcrList = $jsonDcrList | jq -r tostring
             Write-Output "dcr_resource=$jsonDcrList" >> $GITHUB_ENV  # Set the output variable
           azPSVersion: 'latest'
 
@@ -186,7 +181,8 @@ jobs:
     needs: prepare-dcr
     strategy:
       matrix:
-        dcr_instance: ${{ needs.prepare-dcr.outputs.dcr_resource }}
+        # dcr_instance: ${{ needs.prepare-dcr.outputs.dcr_resource }}
+        dcr_instance: ["dcr-windows","dcr-linux"]
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
