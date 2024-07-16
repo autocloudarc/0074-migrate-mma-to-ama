@@ -168,11 +168,11 @@ jobs:
             $jsonDcrList = $dcrList | ConvertTo-Json
             $jsonDcrList | Out-File -FilePath az-scripts/input/jsonDcrList.json
             Write-Host "Deployed DCR Custom Objects:"
-            $dcrList
-            Write-Host "---"
+            $singleLineDcrList = $dcrList -join ', '
+            $singleLineDcrListWithBrackets = "[" + $singleLineDcrList + "]"
             Write-Host "Deployed DCR JSON list:"
-            $jsonDcrList
-            Write-Output "dcr_resource=$jsonDcrList" >> $GITHUB_ENV  # Set the output variable
+            $singleLineDcrListWithBrackets
+            Write-Output "dcr_resource=$singleLineDcrListWithBrackets" >> $GITHUB_ENV  # Set the output variable
           azPSVersion: 'latest'
 
   provision-deprovision:
