@@ -169,10 +169,11 @@ jobs:
             $jsonDcrList | Out-File -FilePath az-scripts/input/jsonDcrList.json
             Write-Host "Deployed DCR Custom Objects:"
             $singleLineDcrList = $dcrList -join ', '
-            $singleLineDcrListWithBrackets = '[' + $singleLineDcrList + ']'
+            $singleLineDcrListWithBrackets = "[" + $singleLineDcrList + "]"
             Write-Host "Deployed DCR JSON list:"
             $singleLineDcrListWithBrackets
             Write-Output "dcr_resource=$singleLineDcrListWithBrackets" >> $GITHUB_ENV  # Set the output variable
+            echo $GITHUB_ENV
           azPSVersion: 'latest'
 
   provision-deprovision:
@@ -182,8 +183,8 @@ jobs:
     needs: prepare-dcr
     strategy:
       matrix:
-        dcr_instance: ${{ needs.prepare-dcr.outputs.dcr_resource }}
-        # dcr_instance: [dcr-windows, dcr-linux]
+        # dcr_instance: ${{ needs.prepare-dcr.outputs.dcr_resource }}
+        dcr_instance: [dcr-windows, dcr-linux]
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
