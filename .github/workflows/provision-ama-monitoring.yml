@@ -63,7 +63,6 @@ env:
   dceName: dce # task-item: randomize name?
   dcrAssociation: dcrVms
   pubNetAccess: 'Enabled'
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: true
   operation: rollback # Allowable values: [plan, apply, rollback]
 
 # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -77,7 +76,7 @@ jobs:
     name: 'prepare-dcr'
     runs-on: ubuntu-latest
     outputs:
-      dcr_resource: ${{ steps.get_deployed_dcrs.outputs.dcrList }}
+      dcr_resource: ${{ steps.get_deployed_dcrs.outputs.dcr_resource }}
     environment: tst
     steps:
       # Checkout the repository to the GitHub Actions runner
