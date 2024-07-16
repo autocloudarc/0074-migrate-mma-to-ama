@@ -229,7 +229,8 @@ jobs:
           -var="managementSubscriptionId=${{ secrets.MGTSUBSCRIPTION }}" \
           -var="connectivitySubscriptionId=${{ secrets.CONSUBSCRIPTION }}" \
           -var="iacSubscriptionId=${{ secrets.IACSUBSCRIPTION }}" \
-          -var="UAMI_NAME=${{ secrets.UAMI_NAME }}"
+          -var="UAMI_NAME=${{ secrets.UAMI_NAME }}" \
+          -var="dcrName"=${{ matrix.dcr_instance }}
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
