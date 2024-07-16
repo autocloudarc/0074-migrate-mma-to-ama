@@ -112,11 +112,26 @@ jobs:
           azcliversion: ${{ env.azCliVer }}
 
       # Update PowerShell Az Modules
-      - name: 'update_ps_modules'
+      - name: 'update_ps_modules_az'
         uses: azure/powershell@v2
         with:
           inlineScript: | 
-            Update-PSResource -Name Az -Verbose
+            Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -Verbose
+            # Check if the Az module is installed
+            $azModule = Get-Module -ListAvailable Az
+
+            if ($azModule -eq $null) 
+            {
+                # Az module is not installed, install it
+                Write-Output "Az module is not installed. Installing..."
+                Install-Module -Name Az -AllowClobber -Scope CurrentUser -Force -Verbose
+            } 
+            else 
+            {
+               # Az module is installed, update it
+               Write-Output "Az module is already installed. Updating..."
+               Update-Module -Name Az -Force -Verbose
+            }
           azPSVersion: 'latest'
       # Get drive space on each VM to ensure there is enough space (at least 10GB) to install the Azure Monitoring Agent
       - name: 'get_drive_space'
