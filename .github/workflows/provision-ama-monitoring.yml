@@ -48,7 +48,7 @@ env:
   skipDCRExecute: false # Set to true to skip the DCR execution, false to execute the downloaded or staged DCR Script
   skipRemediate: false # Set to true to skip remediation, false to remediate
   skipVmExtension: false # Set to true to skip VM extension check, false to check VM extension
-  skipAssociateVms: true # Set to true to skip VM association, false to associate VMs with DCR
+  skipAssociateVms: false # Set to true to skip VM association, false to associate VMs with DCR
   skipUploadDownload: true # Set to true to skip upload/download, false to upload/download
   skipOrigTfPlan: true # Set to true to skip Terraform plan, false to run Terraform plan
   removeMMA: false # Set to true to remove MMA extension, false to keep MMA extension
