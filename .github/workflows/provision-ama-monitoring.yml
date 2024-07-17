@@ -131,7 +131,7 @@ jobs:
             {
                # Az module is installed, update it
                Write-Output "Az module is already installed. Updating..."
-               Update-Module -Name Az -Force -Verbose
+               Update-Module -Name Az -Force -ErrorAction SilentlyContinue -Verbose
             }
           azPSVersion: 'latest'
       # Get drive space on each VM to ensure there is enough space (at least 10GB) to install the Azure Monitoring Agent
