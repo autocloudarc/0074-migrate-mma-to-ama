@@ -75,4 +75,5 @@ module "idy" {
   connectivitySubscriptionId = var.connectivitySubscriptionId
   umi_name = var.UAMI_NAME
   dcr_instance = var.dcr_instance
+  dcr_count = var.dcr_count
 }
