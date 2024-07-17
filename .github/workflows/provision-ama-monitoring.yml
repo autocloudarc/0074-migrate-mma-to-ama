@@ -233,6 +233,11 @@ jobs:
       - name: 'plan_apply_for_each_dcr'
         id: plan_apply_for_each_dcr
         uses: azure/powershell@v2
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_USE_OIDC: true
         with:
           inlineScript: |
             Select-AzSubscription -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }}
@@ -246,10 +251,10 @@ jobs:
             Set-Location -Path ${{ github.workspace }}/src/tfm -Verbose
             foreach ($dcr_instance in $dcrList) 
             {
-                Write-Host "terraform plan..."
-                terraform plan -var="target_mg_id=${{ env.TARGET_MG_ID }}" -var="target_mg_name=${{ env.TARGET_MG_NAME }}" -var="identitySubscriptionId=${{ secrets.IDYSUBSCRIPTION }}" -var="managementSubscriptionId=${{ secrets.MGTSUBSCRIPTION }}" -var="connectivitySubscriptionId=${{ secrets.CONSUBSCRIPTION }}" -var="iacSubscriptionId=${{ secrets.IACSUBSCRIPTION }}" -var="UAMI_NAME=${{ secrets.UAMI_NAME }}" -var="dcrName"=$dcr_instance -lock=false
-                Write-Host "terraform apply..."
-                terraform apply -var="target_mg_id=${{ env.TARGET_MG_ID }}" -var="target_mg_name=${{ env.TARGET_MG_NAME }}" -var="identitySubscriptionId=${{ secrets.IDYSUBSCRIPTION }}" -var="managementSubscriptionId=${{ secrets.MGTSUBSCRIPTION }}" -var="connectivitySubscriptionId=${{ secrets.CONSUBSCRIPTION }}" -var="iacSubscriptionId=${{ secrets.IACSUBSCRIPTION }}" -var="UAMI_NAME=${{ secrets.UAMI_NAME }}" -var="dcrName"=$dcr_instance -auto-approve
+              Write-Host "terraform plan..."
+              terraform plan -var="target_mg_id=${{ env.TARGET_MG_ID }}" -var="target_mg_name=${{ env.TARGET_MG_NAME }}" -var="identitySubscriptionId=${{ secrets.IDYSUBSCRIPTION }}" -var="managementSubscriptionId=${{ secrets.MGTSUBSCRIPTION }}" -var="connectivitySubscriptionId=${{ secrets.CONSUBSCRIPTION }}" -var="iacSubscriptionId=${{ secrets.IACSUBSCRIPTION }}" -var="UAMI_NAME=${{ secrets.UAMI_NAME }}" -var="dcrName"=$dcr_instance -lock=false
+              Write-Host "terraform apply..."
+              terraform apply -var="target_mg_id=${{ env.TARGET_MG_ID }}" -var="target_mg_name=${{ env.TARGET_MG_NAME }}" -var="identitySubscriptionId=${{ secrets.IDYSUBSCRIPTION }}" -var="managementSubscriptionId=${{ secrets.MGTSUBSCRIPTION }}" -var="connectivitySubscriptionId=${{ secrets.CONSUBSCRIPTION }}" -var="iacSubscriptionId=${{ secrets.IACSUBSCRIPTION }}" -var="UAMI_NAME=${{ secrets.UAMI_NAME }}" -var="dcrName"=$dcr_instance -auto-approve
             }
           azPSVersion: 'latest'
 
