@@ -55,6 +55,11 @@ variable "dcr_instance" {
   description = "DCR name"
 }
 
+variable "dcr_count" {
+  type = number
+  description = "DCR count"
+}
+
 variable "umi_pol_name" {
   type        = string
   description = "user managed identity for assigning initiative to targeted management group scope"
@@ -146,4 +151,5 @@ variable "dcr_prefix" {
   default = {
     dcr = "dcr"
   }
+
 }

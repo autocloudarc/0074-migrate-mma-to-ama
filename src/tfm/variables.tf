@@ -50,3 +50,8 @@ variable "dcr_instance" {
   type = string
   description = "DCR name"
 }
+
+variable "dcr_count" {
+  type = number
+  description = "DCR count"
+}
