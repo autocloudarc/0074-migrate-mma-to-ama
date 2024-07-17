@@ -71,12 +71,12 @@ variable "ama_initiative_assignment" {
   type = map(string)
   description = "Enable Azure Monitor for VMs AMA"
   default = {
-    name_dcr = "enable-ama-dcr"
+    name_dcr = "ama-azr"
     display_name = "Enable Azure Monitor for VMs with Azure Monitoring Agent(AMA)"
     assignment_id_dcr = "/providers/microsoft.management/managementgroups/org-id-platform/providers/microsoft.authorization/policyassignments/enable-az-monitor-ama-dcr"
     policy_set_def_id = "/providers/Microsoft.Authorization/policySetDefinitions/924bfe3a-762f-40e7-86dd-5c8b95eb09e6"
 
-    name_hybrid_dcr = "enable-ama-hybrid-dcr"
+    name_hybrid_dcr = "ama-hyb"
     policy_set_hybrid_vm_def_display_name = "Enable Azure Monitor for Hybrid VMs with AMA"
     assignment_id_dcr_hybrid = "/providers/microsoft.management/managementgroups/org-id-platform/providers/microsoft.authorization/policyassignments/ama-arc-dcr"
     policy_set_hybrid_vm_def_id = "/providers/Microsoft.Authorization/policySetDefinitions/2b00397d-c309-49c4-aa5a-f0b2c5bc6321"
