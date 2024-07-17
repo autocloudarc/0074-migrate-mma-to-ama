@@ -247,15 +247,13 @@ jobs:
             $jsonDcrList = $dcrList | ConvertTo-Json
             $jsonDcrList | Out-File -FilePath az-scripts/input/jsonDcrList.json
             Write-Host "`$jsonDcrList: $jsonDcrList"
-            Get-Location
             Set-Location -Path ${{ github.workspace }}/src/tfm -Verbose
-            Get-Location 
             foreach ($dcr_instance in $dcrList) 
             {
               Write-Host "terraform plan..."
               terraform plan -var="target_mg_id=${{ env.TARGET_MG_ID }}" -var="target_mg_name=${{ env.TARGET_MG_NAME }}" -var="identitySubscriptionId=${{ secrets.IDYSUBSCRIPTION }}" -var="managementSubscriptionId=${{ secrets.MGTSUBSCRIPTION }}" -var="connectivitySubscriptionId=${{ secrets.CONSUBSCRIPTION }}" -var="iacSubscriptionId=${{ secrets.IACSUBSCRIPTION }}" -var="UAMI_NAME=${{ secrets.UAMI_NAME }}" -var="dcr_instance"=$dcr_instance -lock=false
               
-              if (${{ env.operation }} -eq 'apply')
+              if ("${{ env.operation }}" -eq "apply")
               {
                 Write-Host "terraform apply..."
                 terraform apply -var="target_mg_id=${{ env.TARGET_MG_ID }}" -var="target_mg_name=${{ env.TARGET_MG_NAME }}" -var="identitySubscriptionId=${{ secrets.IDYSUBSCRIPTION }}" -var="managementSubscriptionId=${{ secrets.MGTSUBSCRIPTION }}" -var="connectivitySubscriptionId=${{ secrets.CONSUBSCRIPTION }}" -var="iacSubscriptionId=${{ secrets.IACSUBSCRIPTION }}" -var="UAMI_NAME=${{ secrets.UAMI_NAME }}" -var="dcr_instance"=$dcr_instance -lock=false -auto-approve
