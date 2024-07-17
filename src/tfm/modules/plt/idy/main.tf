@@ -36,7 +36,7 @@ data "azurerm_monitor_data_collection_rule" "dcr" {
 }
 
 resource "azurerm_management_group_policy_assignment" "ama_initiative_assignment_dcr" {
-  name                 = data.azurerm_monitor_data_collection_rule.dcr.name
+  name                 = var.ama_initiative_assignment.name_dcr
   policy_definition_id = var.ama_initiative_assignment.policy_set_def_id
   management_group_id  = data.azurerm_management_group.tgt.id
   location = var.primary_location
@@ -68,7 +68,7 @@ resource "azurerm_management_group_policy_assignment" "ama_initiative_assignment
 PARAMS
 }
 
-resource "azurerm_management_group_policy_assignment" "amr_arc_dcr" {
+resource "azurerm_management_group_policy_assignment" "ama_arc_dcr" {
   name                 = var.ama_initiative_assignment.name_hybrid_dcr
   policy_definition_id = var.ama_initiative_assignment.policy_set_hybrid_vm_def_id
   management_group_id  = data.azurerm_management_group.tgt.id
