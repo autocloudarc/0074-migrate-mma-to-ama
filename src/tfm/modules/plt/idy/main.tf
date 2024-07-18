@@ -53,7 +53,7 @@ resource "azurerm_management_group_policy_assignment" "ama_initiative_assignment
   }
   lifecycle {
       prevent_destroy = true
-      ignore_changes = ["name", ]
+      ignore_changes = [name]
   }
   parameters = <<PARAMS
     {
@@ -90,7 +90,7 @@ resource "azurerm_management_group_policy_assignment" "ama_arc_dcr" {
   }
   lifecycle {
     prevent_destroy = true
-    ignore_changes = ["name", ]
+    ignore_changes = [name]
   }
   parameters = <<PARAMS
     {
