@@ -279,7 +279,7 @@ jobs:
                 }
                 # Rename the blob
                 $newBlobName = "$i-archive-$($stateFile.Name)"
-                Get-AzStorageBlob -Container ${{ env.backendStorageContainer }} -Context $ctx -Blob $stateFile | Rename-AzStorageBlob -NewName $newBlobName
+                Start-AzStorageBlobCopy -Context $ctx -SrcContainer ${{ env.backendStorageContainer }} -SrcBlob $stateFile.Name -DestContainer ${{ env.backendStorageContainer }} -DestBlob $newBlobName
                 # Delete the blob
                 # Remove-AzStorageBlob -Blob ${{ env.backendStorageBlob }} -Container ${{ env.backendStorageContainer }} -Context $ctx -Verbose
                 # Reset the terraform configuration
