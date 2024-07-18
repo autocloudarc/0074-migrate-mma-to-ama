@@ -268,8 +268,13 @@ jobs:
                 $ctx = $storageAccount.Context
                 # Get the blob reference
                 $stateFile = Get-AzStorageBlob -Blob ${{ env.backendStorageBlob }} -Container ${{ env.backendStorageContainer }} -Context $ctx
-                # Release the lock
-                $stateFile.ICloudBlob.BreakLease()
+                # Check the lease status.
+                $leaseStatus = $blob.ICloudBlob.Properties.LeaseStatus
+                if ($leaseStatus -eq 'Locked')
+                {
+                  # Release the lock
+                  $stateFile.ICloudBlob.BreakLease()
+                }
                 # Delete the blob
                 Remove-AzStorageBlob -Blob ${{ env.backendStorageBlob }} -Container ${{ env.backendStorageContainer }} -Context $ctx - Verbose
                 # Reset the terraform configuration
