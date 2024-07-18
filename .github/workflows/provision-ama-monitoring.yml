@@ -242,9 +242,6 @@ jobs:
             Select-AzSubscription -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }}
             $dcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType ${{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name 
             $dcrList | Export-Csv -Path az-scripts/input/dcrList.csv -NoTypeInformation
-            $azrInitiativeNamePrefix = "ama-azr"
-            $hybInitiativeNamePrefix = "ama-hyb"
-            # TASK-ITEM: Use variables in terraform state rm commands
             Write-Host "`$dcrList:"
             $dcrList
             $dcrCount = $dcrList.Count 
@@ -260,8 +257,8 @@ jobs:
               {
                 Write-Host "terraform apply..."
                 terraform apply -var="target_mg_id=${{ env.TARGET_MG_ID }}" -var="target_mg_name=${{ env.TARGET_MG_NAME }}" -var="identitySubscriptionId=${{ secrets.IDYSUBSCRIPTION }}" -var="managementSubscriptionId=${{ secrets.MGTSUBSCRIPTION }}" -var="connectivitySubscriptionId=${{ secrets.CONSUBSCRIPTION }}" -var="iacSubscriptionId=${{ secrets.IACSUBSCRIPTION }}" -var="UAMI_NAME=${{ secrets.UAMI_NAME }}" -var="dcr_instance"=$dcr_instance -var="dcr_count=$dcrCount" -lock=false -auto-approve
-                terraform state rm "azurerm_management_group_policy_assignment.ama_initiative_assignment_dcr[\"ama-azr-$dcr_instance\"]"
-                terraform state rm "azurerm_management_group_policy_assignment.ama_initiative_assignment_dcr[\"ama-hyb-$dcr_instance\"]"
+                terraform state rm 'azurerm_management_group_policy_assignment.ama_initiative_assignment_dcr["ama-azr-dcr-windows"]'
+                terraform state rm 'azurerm_management_group_policy_assignment.ama_initiative_assignment_dcr["ama-hyb-dcr-windows"]'
               }
             }
           azPSVersion: 'latest'
