@@ -64,7 +64,7 @@ env:
   dceName: dce # task-item: randomize name?
   dcrAssociation: dcrVms
   pubNetAccess: 'Enabled'
-  dcr_instance: dcr-windows # Replace with other DCRs here for subsequent runs, e.g., dcr-linux. See output from $dcrList below: If we try to loop through a list of DCRs, the Terraform plan and apply will replace the previous DCR with the current one :-0
+  dcr_instance: dcr-linux # Replace with other DCRs here for subsequent runs, e.g., dcr-linux. See output from $dcrList below: If we try to loop through a list of DCRs, the Terraform plan and apply will replace the previous DCR with the current one :-0
   operation: apply # Allowable values: [plan, apply, rollback]
 
 # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
