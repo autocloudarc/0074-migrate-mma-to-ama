@@ -64,6 +64,7 @@ env:
   dceName: dce # task-item: randomize name?
   dcrAssociation: dcrVms
   pubNetAccess: 'Enabled'
+  dcr_instance: dcr-windows # Replace with other DCRs here for subsequent runs, e.g., dcr-linux. See output from $dcrList below: If we try to loop through a list of DCRs, the Terraform plan and apply will replace the previous DCR with the current one :-0
   operation: apply # Allowable values: [plan, apply, rollback]
 
 # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -249,16 +250,12 @@ jobs:
             $jsonDcrList | Out-File -FilePath az-scripts/input/jsonDcrList.json
             Write-Host "`$jsonDcrList: $jsonDcrList"
             Set-Location -Path ${{ github.workspace }}/src/tfm -Verbose
-            foreach ($dcr_instance in $dcrList) 
+            Write-Host "terraform plan..."
+            terraform plan -var="target_mg_id=${{ env.TARGET_MG_ID }}" -var="target_mg_name=${{ env.TARGET_MG_NAME }}" -var="identitySubscriptionId=${{ secrets.IDYSUBSCRIPTION }}" -var="managementSubscriptionId=${{ secrets.MGTSUBSCRIPTION }}" -var="connectivitySubscriptionId=${{ secrets.CONSUBSCRIPTION }}" -var="iacSubscriptionId=${{ secrets.IACSUBSCRIPTION }}" -var="UAMI_NAME=${{ secrets.UAMI_NAME }}" -var="dcr_instance"=${{ env.dcr_instance }} -var="dcr_count=$dcrCount" -lock=false
+            if ("${{ env.operation }}" -eq "apply")
             {
-              Write-Host "terraform plan..."
-              terraform plan -var="target_mg_id=${{ env.TARGET_MG_ID }}" -var="target_mg_name=${{ env.TARGET_MG_NAME }}" -var="identitySubscriptionId=${{ secrets.IDYSUBSCRIPTION }}" -var="managementSubscriptionId=${{ secrets.MGTSUBSCRIPTION }}" -var="connectivitySubscriptionId=${{ secrets.CONSUBSCRIPTION }}" -var="iacSubscriptionId=${{ secrets.IACSUBSCRIPTION }}" -var="UAMI_NAME=${{ secrets.UAMI_NAME }}" -var="dcr_instance"=$dcr_instance -var="dcr_count=$dcrCount" -lock=false
-              if ("${{ env.operation }}" -eq "apply")
-              {
-                Write-Host "terraform apply..."
-                terraform apply -var="target_mg_id=${{ env.TARGET_MG_ID }}" -var="target_mg_name=${{ env.TARGET_MG_NAME }}" -var="identitySubscriptionId=${{ secrets.IDYSUBSCRIPTION }}" -var="managementSubscriptionId=${{ secrets.MGTSUBSCRIPTION }}" -var="connectivitySubscriptionId=${{ secrets.CONSUBSCRIPTION }}" -var="iacSubscriptionId=${{ secrets.IACSUBSCRIPTION }}" -var="UAMI_NAME=${{ secrets.UAMI_NAME }}" -var="dcr_instance"=$dcr_instance -var="dcr_count=$dcrCount" -lock=false -auto-approve
-                terraform init -reconfigure # reset the state to allow for the next DCR
-              }
+              Write-Host "terraform apply..."
+              terraform apply -var="target_mg_id=${{ env.TARGET_MG_ID }}" -var="target_mg_name=${{ env.TARGET_MG_NAME }}" -var="identitySubscriptionId=${{ secrets.IDYSUBSCRIPTION }}" -var="managementSubscriptionId=${{ secrets.MGTSUBSCRIPTION }}" -var="connectivitySubscriptionId=${{ secrets.CONSUBSCRIPTION }}" -var="iacSubscriptionId=${{ secrets.IACSUBSCRIPTION }}" -var="UAMI_NAME=${{ secrets.UAMI_NAME }}" -var="dcr_instance"=${{ env.dcr_instance }} -var="dcr_count=$dcrCount" -lock=false -auto-approve
             }
           azPSVersion: 'latest'
 
