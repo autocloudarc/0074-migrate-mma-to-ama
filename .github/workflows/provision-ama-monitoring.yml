@@ -276,7 +276,7 @@ jobs:
                   $stateFile.ICloudBlob.BreakLease()
                 }
                 # Delete the blob
-                Remove-AzStorageBlob -Blob ${{ env.backendStorageBlob }} -Container ${{ env.backendStorageContainer }} -Context $ctx - Verbose
+                Remove-AzStorageBlob -Blob ${{ env.backendStorageBlob }} -Container ${{ env.backendStorageContainer }} -Context $ctx -Verbose
                 # Reset the terraform configuration
                 terraform init -reconfigure
                 # Switch back to the management subscription
