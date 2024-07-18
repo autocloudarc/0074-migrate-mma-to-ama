@@ -36,7 +36,6 @@ data "azurerm_monitor_data_collection_rule" "dcr" {
 }
 
 resource "random_string" "random" {
-  count = var.dcr_count
   length = 4
   special = false
   upper = false
@@ -44,8 +43,7 @@ resource "random_string" "random" {
 
 
 resource "azurerm_management_group_policy_assignment" "ama_initiative_assignment_dcr" {
-  count = var.dcr_count
-  name                 = "${var.ama_initiative_assignment.name_dcr}-${data.azurerm_monitor_data_collection_rule.dcr.name}-${random_string.random[count.index].result}"
+  name                 = "${var.ama_initiative_assignment.name_dcr}-${data.azurerm_monitor_data_collection_rule.dcr.name}-${random_string.random.result}"
   policy_definition_id = var.ama_initiative_assignment.policy_set_def_id
   management_group_id  = data.azurerm_management_group.tgt.id
   location = var.primary_location
@@ -78,8 +76,7 @@ PARAMS
 }
 
 resource "azurerm_management_group_policy_assignment" "ama_arc_dcr" {
-  count = var.dcr_count
-  name                 = "${var.ama_initiative_assignment.name_hybrid_dcr}-${data.azurerm_monitor_data_collection_rule.dcr.name}-${random_string.random[count.index].result}"
+  name                 = "${var.ama_initiative_assignment.name_hybrid_dcr}-${data.azurerm_monitor_data_collection_rule.dcr.name}-${random_string.random.result}"
   policy_definition_id = var.ama_initiative_assignment.policy_set_hybrid_vm_def_id
   management_group_id  = data.azurerm_management_group.tgt.id
   location = var.primary_location
