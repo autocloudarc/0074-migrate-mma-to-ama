@@ -51,6 +51,9 @@ resource "azurerm_management_group_policy_assignment" "ama_initiative_assignment
     type = "UserAssigned"
     identity_ids = [var.umi_pol_id]
   }
+  lifecycle {
+    prevent_destroy = true
+  }
   parameters = <<PARAMS
     {
       "enableProcessesAndDependencies": {
@@ -83,6 +86,9 @@ resource "azurerm_management_group_policy_assignment" "ama_arc_dcr" {
   identity {
     type = "UserAssigned"
     identity_ids = [var.umi_pol_id]
+  }
+  lifecycle {
+    prevent_destroy = true
   }
   parameters = <<PARAMS
     {
