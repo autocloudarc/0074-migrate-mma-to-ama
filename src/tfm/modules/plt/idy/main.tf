@@ -41,6 +41,7 @@ resource "random_string" "random" {
   upper = false
 }
 
+# TASK-ITEM: In GitHub actions workflow, execute: terraform state rm 'azurerm_management_group_policy_assignment.ama_initiative_assignment_dcr[]'
 
 resource "azurerm_management_group_policy_assignment" "ama_initiative_assignment_dcr" {
   name                 = "${var.ama_initiative_assignment.name_dcr}-${data.azurerm_monitor_data_collection_rule.dcr.name}"
