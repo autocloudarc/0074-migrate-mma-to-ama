@@ -1,4 +1,4 @@
-TARGET_MG_ID#!/bin/bash
+#!/bin/bash
 # This script creates a new user-assigned managed identity and assignes it to a set of roles on a given scope.
 
 roles=("Virtual Machine Contributor" "Log Analytics Contributor" "Azure Connected Machine Resource Administrator")
