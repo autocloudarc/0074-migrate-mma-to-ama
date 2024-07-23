@@ -3,6 +3,7 @@
 # *** https://colinsalmcorner.com/using-oidc-with-terraform-in-github-actions/
 # https://azure.github.io/azure-workload-identity/docs/topics/federated-identity-credential.html#federated-identity-credential-for-a-user-assigned-managed-identity
 
+# This workflow will provision the Azure Monitoring Agent on the target compute resources
 name: Migrate To Azure Monitoring Agent
 on:
   push:
@@ -10,37 +11,38 @@ on:
       - main
   workflow_dispatch:
 
+# Federated credentials (OIDC) Permissions for the GitHub Actions runner to authenticate to Azure
 permissions:
   id-token: write
   contents: read
 
 # Global environment variables accessible from any jobs or steps
 env:
-  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  IDYSUBSCRIPTION: ${{ secrets.IDYSUBSCRIPTION }}
-  MGTSUBSCRIPTION: ${{ secrets.MGTSUBSCRIPTION }}
-  CONSUBSCRIPTION: ${{ secrets.CONSUBSCRIPTION }} # Subscription for the connection monitor
-  IACSUBSCRIPTION: ${{ secrets.IACSUBSCRIPTION }}
-  UAMI_NAME: ${{ secrets.UAMI_NAME }} # umi-ama-mig-001
-  uamiResourceGroup: rgp-iac
-  mgtResourceGroup: rg-management
-  mgtLogAnalyticsWorkspace: log-management
-  LAW_ID: ${{ secrets.LAW_ID }}
-  rgpName: rgp-idy
-  rgpLocation: centralus
-  uamiLocation: eastus2
-  uamiRoleAssignmentVmContrib: 'Virtual Machine Contributor'
-  uamiRoleAssignmentLogAnalyticsContrib: 'Log Analytics Contributor'
-  uamiRoleAssignmentArcContrib: 'Azure Arc Connected Resource Administrator'
-  # azCliVer: 2.59.0 - relevant for self-hosted runners
+  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }} # Service principal client ID
+  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }} # Default log-in subscription for tenant
+  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }} # Tenant ID in which the service principal is created
+  IDYSUBSCRIPTION: ${{ secrets.IDYSUBSCRIPTION }} # Target subscription which contains the compute resources to configure with the AMA agent 
+  MGTSUBSCRIPTION: ${{ secrets.MGTSUBSCRIPTION }} # Subscription in which the log analytics workspace, designated as the target repository for the DCRs (and compute resources) is created
+  CONSUBSCRIPTION: ${{ secrets.CONSUBSCRIPTION }} # Subscription for the connectivity (hub netowkring) resources, e.g., VNETs, NSGs, etc. (For example, if your organization has already deployed the Azure Landing Zones)
+  IACSUBSCRIPTION: ${{ secrets.IACSUBSCRIPTION }} # Subscription for the IaC resources, the user assigned managed identity that will install the AMA agent on the target VMs and the storage account, container and blob for the .tfstate file.
+  UAMI_NAME: ${{ secrets.UAMI_NAME }} # The name of the user assigned managed identity which will configure the AMA agent on the targer compute resources (VMs, VM Scale Sets), i.e. umi-ama-mig-001
+  uamiResourceGroup: rgp-iac # Resource group in which the UAMI is created and optionally the storage account, container and blob for the .tfstate file
+  mgtResourceGroup: rg-management # Resource group in which the log analytics workspace is created
+  mgtLogAnalyticsWorkspace: log-management # Target log analytics workspace name
+  LAW_ID: ${{ secrets.LAW_ID }} # Target log analytics workspace ID
+  rgpName: rgp-idy # Resource group in which the target compute resources are located
+  rgpLocation: centralus # Location of the target compute resources
+  uamiLocation: eastus2 # Location of the user assigned managed identity
+  uamiRoleAssignmentVmContrib: 'Virtual Machine Contributor' # Role assignment for the UAMI on the target compute resources
+  uamiRoleAssignmentLogAnalyticsContrib: 'Log Analytics Contributor' # Role assignment for the UAMI on the target log analytics workspace
+  uamiRoleAssignmentArcContrib: 'Azure Arc Connected Resource Administrator' # 
+  # azCliVer: 2.59.0 - relevant for self-hosted runners as of 15jul2024
   azCliVer: latest
-  # tfVersion: 1.8.2 - relevant for self-hosted runners
+  # tfVersion: 1.8.2 - relevant for self-hosted runners as of 15jul2024
   tfVersion: latest
-  # bicepVer: 0.26.54 - relevant for self-hosted runners
+  # bicepVer: 0.26.54 - relevant for self-hosted runners as of 15jul2024
   bicepVer: latest
-  tfWorkingdir: src/tfm
+  tfWorkingdir: src/tfm # Terraform working directory
   skipUAMI: false # Set to true to skip UAMI creation, false to create UAMI if necessary
   skipDriveSpace: true # Set to true to skip drive space check, false to check drive space
   skipMMAStatus: false # Set to true to skip MMA status check, false to check MMA status
@@ -53,23 +55,20 @@ env:
   skipOrigTfPlan: true # Set to true to skip Terraform plan, false to run Terraform plan
   removeMMA: false # Set to true to remove MMA extension, false to keep MMA extension
   dcrUrl: 'https://raw.githubusercontent.com/microsoft/AzureMonitorCommunity/master/Azure%20Services/Azure%20Monitor/Agents/Migration%20Tools/DCR%20Config%20Generator/WorkspaceConfigToDCRMigrationTool.ps1'
-  dcrOutputPath: az-scripts/WorkspaceConfigToDCRMigrationTool.ps1
-  dcrExportPath: dcr-export
+  dcrOutputPath: az-scripts/WorkspaceConfigToDCRMigrationTool.ps1 # Local (GitHub runner) relative path to the DCR generator script
+  dcrExportPath: dcr-export # Export path for the DCR templates
   dcrNamePrefix: dcr # For DCR migration tool generated templates
-  dcrResourceType: 'Microsoft.Insights/dataCollectionRules'
-  policy-asm-dcr: enable-ama-dcr
-  policy-asm-dcr-ext: enable-ama-dcr-ext
-  TARGET_MG_ID: ${{ secrets.TARGET_MG_ID }}
-  TARGET_MG_NAME: ${{ secrets.TARGET_MG_NAME }}
-  backendStorageRgp: ${{ secrets.BACKEND_STORAGE_RGP }}
-  backendStorageAccount: ${{ secrets.BACKEND_STORAGE_ACCOUNT }}
-  backendStorageContainer: ${{ secrets.BACKEND_STORAGE_CONTAINER }}
-  backendStorageBlob: ${{ secrets.BACKEND_STORAGE_BLOB }}
+  dcrResourceType: 'Microsoft.Insights/dataCollectionRules' # Resource type for DCRs
+  TARGET_MG_ID: ${{ secrets.TARGET_MG_ID }} # Target scope of management group ID where the Azure Initiatives with Monitoring polices will be assigned
+  TARGET_MG_NAME: ${{ secrets.TARGET_MG_NAME }} # Target scope of management group name where the Azure Initiatives with Monitoring polices will be assigned
+  backendStorageRgp: ${{ secrets.BACKEND_STORAGE_RGP }} # Resource group in which the backend storage account, container and blob are located
+  backendStorageAccount: ${{ secrets.BACKEND_STORAGE_ACCOUNT }} # Backend storage account for the ama.tfstate file
+  backendStorageContainer: ${{ secrets.BACKEND_STORAGE_CONTAINER }} # Backend storage container for the ama.tfstate file
+  backendStorageBlob: ${{ secrets.BACKEND_STORAGE_BLOB }} # Backend storage blob (actually same as the ama.tfstate file)
   dceName: dce # task-item: randomize name?
-  dcrAssociation: dcrVms
-  pubNetAccess: 'Enabled'
-  # dcr_instance: dcr-windows # Replace with other DCRs here for subsequent runs, e.g., dcr-linux. See output from $dcrList below: If we try to loop through a list of DCRs, the Terraform plan and apply will replace the previous DCR with the current one :-0
-  operation: apply # Allowable values: [plan, apply, rollback]
+  dcrAssociation: dcrVms # Virtual machines that will be associated with DCRs based on the VM resource ids specified in the file: /az-scripts/input/input.csv
+  pubNetAccess: 'Enabled' # Public network access for the data collection endpoint
+  operation: apply # Allowable values: [plan, apply] # NOTE: Rollback isn't available since the only way to effectively reset the state is to delete the state file after each iteration of plan and apply.
 
 # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
 defaults:
@@ -202,7 +201,7 @@ jobs:
 
       # Setup Terraform (requires unzip on Ubuntu. Run 'sudo apt-get install unzip' on self-hosted runner)
       - name: 'terraform_setup'
-        if: ${{ env.operation == 'apply' || env.operation == 'rollback' }}
+        if: ${{ env.operation == 'plan' || env.operation == 'apply' }}
         id: setup
         uses: hashicorp/setup-terraform@v3
         with:
@@ -211,7 +210,7 @@ jobs:
 
       # Check version
       - name: 'terraform_version_check'
-        if: ${{ env.operation == 'apply' || env.operation == 'rollback' }}
+        if: ${{ env.operation == 'plan' || env.operation == 'apply' }}
         id: version
         run: terraform version
 
@@ -228,7 +227,7 @@ jobs:
 
       # Format
       - name: 'terraform_format'
-        if: ${{ env.operation == 'plan' || env.operation == 'apply' || env.operation == 'rollback' }}
+        if: ${{ env.operation == 'plan' || env.operation == 'apply' }}
         id: format
         run: terraform fmt -recursive
 
@@ -275,7 +274,8 @@ jobs:
                   # Release the lock
                   $stateFile.ICloudBlob.BreakLease()
                 }
-                # Delete the blob
+                # Delete the blob. Currently, this is the only way we know of to effectively reset the terraform configuration.
+                # We've already tried, the reset, reconfigure, and force-unlock options, all without deleting the state file, but they don't work as expected.
                 Remove-AzStorageBlob -Blob ${{ env.backendStorageBlob }} -Container ${{ env.backendStorageContainer }} -Context $ctx -Verbose
                 # Reset the terraform configuration
                 terraform init -reconfigure
@@ -286,7 +286,6 @@ jobs:
           azPSVersion: 'latest'
 
         # ETL for DCR, Log Analytics and VM mapping and association
-        # TASK-ITEM: Autogenerate association table
       - name: 'associate_vms_with_dcr'
         if: ${{ env.skipAssociateVms == 'false' }}
         uses: azure/powershell@v2
@@ -317,15 +316,4 @@ jobs:
             Select-AzSubscription -SubscriptionId ${{ secrets.IDYSUBSCRIPTION }}
             az-scripts/Get-VmExtension.ps1
           azPSVersion: 'latest'
-
-      # Rollback
-      - name: 'terraform_rollback'
-        if: ${{ env.operation == 'rollback' }}
-        id: rollback
-        run: terraform destroy -auto-approve
-        timeout-minutes: 30
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_USE_OIDC: true
+      # End of the provision-deprovision job & workflow
