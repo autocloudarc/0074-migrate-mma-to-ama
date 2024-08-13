@@ -50,6 +50,7 @@ env:
   skipAssociateVms: false # Set to true to skip VM association, false to associate VMs with DCR
   skipUploadDownload: true # Set to true to skip upload/download, false to upload/download
   skipOrigTfPlan: true # Set to true to skip Terraform plan, false to run Terraform plan
+  skipDce: true # Set to true to skip DCE creation, false to create DCE
   removeMMA: false # Set to true to remove MMA extension, false to keep MMA extension
   dcrUrl: 'https://raw.githubusercontent.com/microsoft/AzureMonitorCommunity/master/Azure%20Services/Azure%20Monitor/Agents/Migration%20Tools/DCR%20Config%20Generator/WorkspaceConfigToDCRMigrationTool.ps1'
   dcrOutputPath: az-scripts/WorkspaceConfigToDCRMigrationTool.ps1 # Local (GitHub runner) relative path to the DCR generator script
@@ -100,6 +101,7 @@ jobs:
         working-directory: az-scripts
       # Create a data collection endpoint
       - name: create_data_collection_endpoint
+        if: ${{ env.skipDce == 'false' }}
         run: |
           randomSuffix=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 6 | head -n 1)
           az account set --subscription ${{ secrets.MGTSUBSCRIPTION }} --verbose 
