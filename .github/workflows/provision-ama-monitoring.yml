@@ -237,7 +237,7 @@ jobs:
         with:
           inlineScript: |
             Select-AzSubscription -SubscriptionId ${{ secrets.MGTSUBSCRIPTION }}
-            $dcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType ${{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^dcr-'}).Name 
+            $dcrList = ((Get-AzResource -ResourceGroupName ${{ env.mgtResourceGroup }} -ResourceType ${{ env.dcrResourceType }}) | Where-Object {$_.Name -match '^org-id-dcr'}).Name 
             $dcrList | Export-Csv -Path az-scripts/input/dcrList.csv -NoTypeInformation
             Write-Host "`$dcrList:"
             $dcrList
