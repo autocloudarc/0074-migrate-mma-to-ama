@@ -94,22 +94,16 @@ jobs:
       # Create user-assigned managed identity (UAMI) and assign roles
       - name: create_umi_and_assign_roles
         if: ${{ env.skipUAMI == 'false' }}
-        uses: Azure/CLI@v2
-        with:
-          azcliversion: ${{ env.azCliVer }}
-          inlineScript: |
-            chmod +x az-scripts/createAndAssignUAMI.sh
-            az-scripts/createAndAssignUAMI.sh
+        run: |
+          chmod +x az-scripts/createAndAssignUAMI.sh
+          az-scripts/createAndAssignUAMI.sh
 
       # Create a data collection endpoint
       - name: create_data_collection_endpoint
-        uses: Azure/CLI@v2
-        with:
-          inlineScript: |
-            randomSuffix=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 6 | head -n 1)
-            az account set --subscription ${{ secrets.MGTSUBSCRIPTION }} --verbose 
-            az monitor data-collection endpoint create --data-collection-endpoint-name ${{ env.dceName }} --public-network-access ${{ env.pubNetAccess }} --resource-group ${{ env.mgtResourceGroup }}
-          azcliversion: ${{ env.azCliVer }}
+        run: |
+          randomSuffix=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 6 | head -n 1)
+          az account set --subscription ${{ secrets.MGTSUBSCRIPTION }} --verbose 
+          az monitor data-collection endpoint create --data-collection-endpoint-name ${{ env.dceName }} --public-network-access ${{ env.pubNetAccess }} --resource-group ${{ env.mgtResourceGroup }}
 
       # Update PowerShell Az Modules
       - name: 'update_ps_modules_az'
@@ -296,12 +290,9 @@ jobs:
       # Trigger policy state scan
       - name: 'trigger_policy_state_scan'
         if: ${{ env.operation == 'apply' }}
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            az account set --subscription ${{ secrets.IDYSUBSCRIPTION }}
-            az policy state trigger-scan -g ${{ env.rgpName }} --no-wait --verbose
-          azcliversion: ${{ env.azCliVer }}
+        run: |
+          az account set --subscription ${{ secrets.IDYSUBSCRIPTION }}
+          az policy state trigger-scan -g ${{ env.rgpName }} --no-wait --verbose
 
       # Get VM extension information to determine if the AMA agent is installed, in which case the MMA extension can be removed if desired
       - name: 'get_vm_extension_status'
