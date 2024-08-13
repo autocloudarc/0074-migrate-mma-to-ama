@@ -36,11 +36,8 @@ env:
   uamiRoleAssignmentVmContrib: 'Virtual Machine Contributor' # Role assignment for the UAMI on the target compute resources
   uamiRoleAssignmentLogAnalyticsContrib: 'Log Analytics Contributor' # Role assignment for the UAMI on the target log analytics workspace
   uamiRoleAssignmentArcContrib: 'Azure Arc Connected Resource Administrator' # 
-  # azCliVer: 2.59.0 - relevant for self-hosted runners as of 15jul2024
   azCliVer: latest
-  # tfVersion: 1.8.2 - relevant for self-hosted runners as of 15jul2024
   tfVersion: latest
-  # bicepVer: 0.26.54 - relevant for self-hosted runners as of 15jul2024
   bicepVer: latest
   tfWorkingdir: src/tfm # Terraform working directory
   skipUAMI: false # Set to true to skip UAMI creation, false to create UAMI if necessary
