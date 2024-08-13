@@ -94,7 +94,7 @@ jobs:
       # Create user-assigned managed identity (UAMI) and assign roles
       - name: create_umi_and_assign_roles
         if: ${{ env.skipUAMI == 'false' }}
-        run: chmod +x {{ github.workspace }}/az-scripts/createAndAssignUAMI.sh && {{ github.workspace }}/az-scripts/createAndAssignUAMI.sh
+        run: chmod +x ./az-scripts/createAndAssignUAMI.sh && ./az-scripts/createAndAssignUAMI.sh
       # Create a data collection endpoint
       - name: create_data_collection_endpoint
         run: |
